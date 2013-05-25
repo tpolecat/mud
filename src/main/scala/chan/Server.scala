@@ -18,7 +18,7 @@ object Server {
 
   def run(port: Int, initialState: => SessionState): IO[Unit] =
     for {
-      _ <- Log.info(s"Netty server starting on port $port")
+      _ <- Log.info(s"Netty server starting on port $port ... for now just ^c to shutdown.")
       _ <- IO {
         val bossGroup, workerGroup = new NioEventLoopGroup
         try {
