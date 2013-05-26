@@ -14,8 +14,10 @@ case class Playing(d: Dungeon, m: Mobile) extends SessionState with Commands {
   def input(s: String): Action[SessionState] =
     cmd(s, d, m).liftIO[Action].map(_ => this)
 
-}
+  def closed: Action[Unit] =
+    d.remove(m).liftIO[Action]
 
+}
 
 trait Commands {
 

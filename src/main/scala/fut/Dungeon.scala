@@ -33,6 +33,16 @@ class Dungeon(val map: Map[Room, Map[Direction, Portal]]) {
   def intro(m: Mobile): IO[Unit] =
     teleport(m, Start, s"${m.name} has entered the game.")
 
+  def remove(m: Mobile): IO[Unit] =
+    for {
+      i <- (for {
+        r <- findMobile(m)
+        i <- roomInfo(r)
+        _ <- removeMobile(m)
+      } yield i).run
+      _ <- reportMany(i.mobiles, m)(s"${m.name} freezes and slowly fades from view.")
+    } yield ()
+
   def teleport(m: Mobile, r: Room, msg: String): IO[Unit] =
     for {
       i <- (move(m, r) >> roomInfo(r)).run

@@ -44,6 +44,13 @@ final class State(map: Map[Room, Map[Direction, Portal]]) extends World {
   def move(m: Mobile, dest: Room): Action[Unit] =
     effect { implicit t => mobiles() = mobiles() + (m -> dest) }
 
+  // TODO: this is awkward
+  def removeMobile(m:Mobile): Action[Unit] =
+    for {
+      r <- findMobile(m)
+      _ <- effect { implicit t => mobiles() = mobiles() - (m -> r) }
+    } yield ()    
+  
   def portals(r: Room): Action[Map[Direction, Portal]] =
     effect { implicit t => portals().get(r).getOrElse(Map()) }
 

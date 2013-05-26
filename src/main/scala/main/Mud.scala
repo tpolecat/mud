@@ -20,7 +20,7 @@ object Mud extends SafeApp {
       d <- DataMain.load.map(new Dungeon(_))
       _ <- Log.info(s"Loaded dungeon with ${d.map.size} rooms.")
       _ <- Server.run(port, Registration(d))
-      _ <- Log.info(s"Done.")
+      _ <- Log.info(s"Clean shutdown.")
     } yield ()
 
 }

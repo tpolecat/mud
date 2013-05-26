@@ -29,5 +29,9 @@ case class Registration(d: Dungeon) extends SessionState {
       _ <- Log.info(s"Registered: $r as ${m.name}").liftIO[Action]
     } yield Playing(d, m)
 
+  def closed: Action[Unit] =
+    unit()
+
 }
+
 

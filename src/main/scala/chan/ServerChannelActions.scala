@@ -1,9 +1,6 @@
 package chan
 
 import ServerChannelWorld._
-import io.netty.channel.ChannelHandlerContext
-import scalaz.syntax.monad._
-import util.IOLog
 
 trait ServerChannelActions {
 	  
@@ -17,16 +14,18 @@ trait ServerChannelActions {
 
   def messageReceivedAction(msg: String): Action[Unit] =
     for {
-      s <- getState
-      s <- s.input(msg) // new state!
-      _ <- putState(s)
-      _ <- s.prompt
+      a <- getState
+      b <- a.input(msg)
+      _ <- putState(b)
+      _ <- b.prompt
     } yield ()
 
   def channelInactiveAction: Action[Unit] =
     for {
       r <- remoteAddress
       _ <- Log.info(s"Closed: $r").liftIO[Action]
+      a <- getState
+      _ <- a.closed
     } yield ()
 
   def exceptionCaughtActon(cause: Throwable): Action[Unit] =

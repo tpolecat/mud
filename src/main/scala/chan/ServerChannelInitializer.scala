@@ -29,8 +29,9 @@ class ServerChannelInitializer(initialState: => SessionState) extends ChannelIni
 
   val initChannelAction: Action[Unit] =
     for {      
+      d <- IO(new DelimiterBasedFrameDecoder(8192, Delimiters.lineDelimiter: _*)).liftIO[Action]
       // TODO: is the DelimiterBasedFrameDecoder sharable like the others? if so, move it up
-      _ <- addLast("framer", new DelimiterBasedFrameDecoder(8192, Delimiters.lineDelimiter: _*))      
+      _ <- addLast("framer", d)      
       _ <- addLast("decoder", Decoder)
       _ <- addLast("encoder", Encoder)
       _ <- addLast("handler", Handler) 

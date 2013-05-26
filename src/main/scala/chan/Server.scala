@@ -18,26 +18,20 @@ object Server {
 
   def run(port: Int, initialState: => SessionState): IO[Unit] =
     for {
-      _ <- Log.info(s"Netty server starting on port $port ... for now just ^c to shutdown.")
+      _ <- Log.info(s"Netty server starting on port $port ... ^C to shutdown.")
       _ <- IO {
         val bossGroup, workerGroup = new NioEventLoopGroup
-        try {
-          new ServerBootstrap()
-            .group(bossGroup, workerGroup)
-            .channel(classOf[NioServerSocketChannel])
-            .childHandler(new ServerChannelInitializer(initialState))
-            .localAddress(port)
-            .bind()
-            .sync()
-            .channel()
-            .closeFuture()
-            .sync()
-        } finally {
-          bossGroup.shutdown()
-          workerGroup.shutdown()
-        }
+        new ServerBootstrap()
+          .group(bossGroup, workerGroup)
+          .channel(classOf[NioServerSocketChannel])
+          .childHandler(new ServerChannelInitializer(initialState))
+          .localAddress(port)
+          .bind()
+          .sync()
+          .channel()
+          .closeFuture()
+          .sync() // Never returns.
       }
-      _ <- Log.info(s"Netty server exited cleanly.")
     } yield ()
 
 }
