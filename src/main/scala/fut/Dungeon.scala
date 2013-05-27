@@ -10,28 +10,26 @@ class Dungeon(val map: Map[Room, Map[Direction, Portal]]) {
   val state = new State(map)
   import state._
 
-  def reportRoom(m: Mobile)(info: RoomInfo): IO[Unit] =
-    m.report {
-      s"""|
-          |== ${info.room.name} ==
-          |
-          |${info.room.desc.trim}
-          |${info.mobiles.filterNot(_ == m).map(_.name).map(_ + " is standing here.").mkString("\n", "\n", "")}
-          |${info.portals.map { case (d, p) => s"${d} : ${p.dest.name}" }.mkString("\n", "\n", "")}
-          |""".stripMargin
-        .replaceAll("\n\n\n", "\n\n")
-        .replaceAll("\n\n\n", "\n\n")
-        .replaceAll("\n\n\n", "\n\n")
-    }
+  def setAvatar(m: Mobile, a: Avatar): IO[Unit] =
+    attachAvatar(m, a).run
 
-  def reportMany(ms: Set[Mobile], except: Mobile)(s: => String): IO[Unit] =
-    ms.filterNot(_ == except).toList.traverse(_.report(s)) >> ioUnit
+  def report(m: Mobile)(s: Stimulus): IO[Unit] =
+    for {
+      a <- avatar(m).run
+      _ <- a.fold(ioUnit)(_.report(s))
+    } yield ()
+
+  def reportAll(ms: Set[Mobile])(s: => Stimulus): IO[Unit] =
+    ms.toList.traverse(report(_)(s)) >> ioUnit
+
+  def reportMany(ms: Set[Mobile], except: Mobile)(s: => Stimulus): IO[Unit] =
+    reportAll(ms.filterNot(_ == except))(s)
 
   def look(m: Mobile): IO[Unit] =
-    roomInfo(m).run >>= reportRoom(m)
+    roomInfo(m).run.map(Look) >>= report(m)
 
   def intro(m: Mobile): IO[Unit] =
-    teleport(m, Start, s"${m.name} has entered the game.")
+    teleport(m, Start, EnterGame(m))
 
   def remove(m: Mobile): IO[Unit] =
     for {
@@ -40,13 +38,13 @@ class Dungeon(val map: Map[Room, Map[Direction, Portal]]) {
         i <- roomInfo(r)
         _ <- removeMobile(m)
       } yield i).run
-      _ <- reportMany(i.mobiles, m)(s"${m.name} freezes and slowly fades from view.")
+      _ <- reportMany(i.mobiles, m)(ExitGame(m))
     } yield ()
 
-  def teleport(m: Mobile, r: Room, msg: String): IO[Unit] =
+  def teleport(m: Mobile, r: Room, msg: Stimulus): IO[Unit] =
     for {
       i <- (move(m, r) >> roomInfo(r)).run
-      _ <- reportRoom(m)(i)
+      _ <- report(m)(Look(i))
       _ <- reportMany(i.mobiles, m)(msg)
     } yield ()
 
@@ -55,15 +53,14 @@ class Dungeon(val map: Map[Room, Map[Direction, Portal]]) {
 
       // Not a legal move
       case None =>
-        m.report(s"You can't go ${d.toString.toLowerCase} from here.")
+        report(m)(NoExit(d))
 
       // Done. Tell everyone
       case Some((a, b)) =>
         for {
-          _ <- m.report(s"You leave ${d.toString.toLowerCase}")
-          _ <- reportMany(a.mobiles, m)(s"${m.name} leaves ${d.toString.toLowerCase}.")
-          _ <- reportMany(b.mobiles, m)(s"${m.name} has arrived.")
-          _ <- reportRoom(m)(b)
+          _ <- reportAll(a.mobiles)(Exit(m, d))
+          _ <- reportAll(b.mobiles)(Enter(m))
+          _ <- report(m)(Look(b))
         } yield ()
 
     }

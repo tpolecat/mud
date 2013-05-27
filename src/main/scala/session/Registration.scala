@@ -23,7 +23,9 @@ case class Registration(d: Dungeon) extends SessionState {
 
   def create(s: String): Action[SessionState] =
     for {
-      m <- writer.map(Mobile(_, s))
+      m <- unit(Mobile(s))
+      w <- writer
+      _ <- d.setAvatar(m, new DefaultTextAvatar(m, w)).liftIO[Action]
       _ <- d.intro(m).liftIO[Action]
       r <- remoteAddress
       _ <- Log.info(s"Registered: $r as ${m.name}").liftIO[Action]

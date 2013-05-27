@@ -2,6 +2,7 @@ package session
 
 import chan.ServerChannelWorld._
 import fut._
+import scalaz.syntax.std.boolean._
 import scalaz.effect.IO
 import scalaz.effect.IO._
 import chan.SessionState
@@ -12,7 +13,10 @@ case class Playing(d: Dungeon, m: Mobile) extends SessionState with Commands {
     write(s"<${m.name}> ")
 
   def input(s: String): Action[SessionState] =
-    cmd(s, d, m).liftIO[Action].map(_ => this)
+    for {
+      _ <- cmd(s, d, m).liftIO[Action].map(_ => this)
+      b <- d.playerExists(m.name).liftIO[Action] // TODO: this is a race
+    } yield if (b) this else SessionState.Closed
 
   def closed: Action[Unit] =
     d.remove(m).liftIO[Action]
@@ -36,9 +40,9 @@ trait Commands {
       case "go" :: "up" :: Nil    => d.go(m, Up)
       case "go" :: "down" :: Nil  => d.go(m, Down)
       case "look" :: Nil          => d.look(m)
+      case "quit" :: Nil          => d.remove(m)
       case "" :: Nil              => ioUnit
-      case _                      => m.report("wat?")
-
+      case _                      => d.report(m)(Wat)
     }
 
   def expandAlias(s: String): List[String] =

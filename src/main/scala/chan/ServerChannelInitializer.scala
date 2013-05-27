@@ -18,7 +18,7 @@ import io.netty.channel.ChannelHandler
 
 class ServerChannelInitializer(initialState: => SessionState) extends ChannelInitializer[SocketChannel] {
 
-  import PipelineWorld._
+  import SocketChannelWorld.PipelineWorld._
 
   val Decoder = new StringDecoder(Encoding)
   val Encoder = new StringEncoder(Encoding)
@@ -27,30 +27,37 @@ class ServerChannelInitializer(initialState: => SessionState) extends ChannelIni
   def initChannel(ch: SocketChannel): Unit =
     initChannelAction.run(ch).unsafePerformIO
 
+  // Frame decoder is not a sharable RT value, so we need a new one each time.
+  val frameDecoder: Action[ChannelHandler] =
+    IO(new DelimiterBasedFrameDecoder(8192, Delimiters.lineDelimiter: _*)).liftIO[Action]
+
   val initChannelAction: Action[Unit] =
-    for {      
-      d <- IO(new DelimiterBasedFrameDecoder(8192, Delimiters.lineDelimiter: _*)).liftIO[Action]
-      // TODO: is the DelimiterBasedFrameDecoder sharable like the others? if so, move it up
-      _ <- addLast("framer", d)      
+    for {
+      d <- frameDecoder
+      _ <- addLast("framer", d)
       _ <- addLast("decoder", Decoder)
       _ <- addLast("encoder", Encoder)
-      _ <- addLast("handler", Handler) 
+      _ <- addLast("handler", Handler)
     } yield ()
 
 }
 
-object SocketChannelWorld0 extends TWorld {
+// A one-off effect world for socket channels
+object SocketChannelWorld extends TWorld {
+
   protected type State = SocketChannel
-}
 
-object PipelineWorld extends SocketChannelWorld0.Lifted[IO] {
+  object PipelineWorld extends Lifted[IO] {
 
-  def addLast(s: String, cp: ChannelHandler): Action[Unit] =
-    effect { ch => ch.pipeline.addLast(s, cp) }
+    def addLast(s: String, cp: ChannelHandler): Action[Unit] =
+      effect { ch => ch.pipeline.addLast(s, cp) }
 
-  implicit class Ops[A](a: Action[A]) {
-    def run(chc: SocketChannel): IO[A] =
-      eval(a, chc).map(_._2)
+    implicit class Ops[A](a: Action[A]) {
+      def run(chc: SocketChannel): IO[A] =
+        eval(a, chc).map(_._2)
+    }
+
   }
 
 }
+

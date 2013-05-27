@@ -21,7 +21,8 @@ final class State(map: Map[Room, Map[Direction, Portal]]) extends World {
   private val portals: Ref[Map[Room, Map[Direction, Portal]]] = Ref(map)
   private val mobiles: Ref[M2O[Mobile, Room]] = Ref(M2O.empty)
   private val items: Ref[M2O[Item, Room]] = Ref(M2O.empty)
-
+  private val avatars: Ref[Map[Mobile,Avatar]] = Ref(Map())
+  
   // And because our actions can modify mutable state, they can only be run in IO
   implicit class RunnableAction[A](a: Action[A]) {
     def run: IO[A] = IO(atomic(runWorld(a, _)._2))
@@ -29,6 +30,12 @@ final class State(map: Map[Room, Map[Direction, Portal]]) extends World {
 
   // Primitive actions
 
+  def attachAvatar(m:Mobile, a:Avatar): Action[Unit] =
+    effect { implicit tx => avatars() = avatars() + (m -> a)}
+  
+  def avatar(m:Mobile):Action[Option[Avatar]] =
+    effect { implicit tx => avatars().get(m) }
+  
   def findRoom(s: String): Action[Option[Room]] =
     effect { implicit t => portals().keys.find(_.name equalsIgnoreCase s) }
 
@@ -43,12 +50,13 @@ final class State(map: Map[Room, Map[Direction, Portal]]) extends World {
 
   def move(m: Mobile, dest: Room): Action[Unit] =
     effect { implicit t => mobiles() = mobiles() + (m -> dest) }
-
+  
   // TODO: this is awkward
   def removeMobile(m:Mobile): Action[Unit] =
     for {
       r <- findMobile(m)
       _ <- effect { implicit t => mobiles() = mobiles() - (m -> r) }
+      _ <- effect { implicit t => avatars() = avatars() - m }
     } yield ()    
   
   def portals(r: Room): Action[Map[Direction, Portal]] =

@@ -14,8 +14,8 @@ object SessionState {
   object Closed extends SessionState {
 
     def prompt: Action[Unit] =
-      unit()
-
+      close
+      
     def input(s: String): Action[SessionState] =
       close.map(_ => this) // we should never see input, but on the off chance we do, close.
 
