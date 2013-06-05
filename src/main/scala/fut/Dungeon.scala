@@ -7,7 +7,7 @@ import scalaz.effect.IO.ioUnit
 
 class Dungeon(val map: Map[Room, Map[Direction, Portal]]) {
 
-  val state = new State(map)
+  val state = new GameState(map)
   import state._
 
   def setAvatar(m: Mobile, a: Avatar): IO[Unit] =

@@ -8,7 +8,7 @@ import scalaz._
 import Scalaz._
 
 // Our mutable state is hidden in an effect world whose actions compose transactionally and can be run only in IO.
-final class State(map: Map[Room, Map[Direction, Portal]]) extends World {
+final class GameState(map: Map[Room, Map[Direction, Portal]]) extends World {
 
   // Find limbo; we need it
   val Limbo = map.keys.find(_.name == "Limbo").getOrElse(sys.error("Fatal: can't find Limbo"))
@@ -50,6 +50,10 @@ final class State(map: Map[Room, Map[Direction, Portal]]) extends World {
 
   def move(m: Mobile, dest: Room): Action[Unit] =
     effect { implicit t => mobiles() = mobiles() + (m -> dest) }
+  
+  // What about this?
+  val tryAgain: Action[Nothing] =
+    effect { implicit t => retry }
   
   // TODO: this is awkward
   def removeMobile(m:Mobile): Action[Unit] =

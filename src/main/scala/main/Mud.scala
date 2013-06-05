@@ -24,3 +24,4 @@ object Mud extends SafeApp {
     } yield ()
 
 }
+
