@@ -14,12 +14,12 @@ import io.netty.handler.codec.string.StringDecoder
 import io.netty.handler.codec.string.StringEncoder
 import io.netty.util.CharsetUtil.{ UTF_8 => Encoding }
 
-/** Line-based telnet server, with a state machine for each connextion. */
+/** Line-based telnet server, with a state machine for each connection. */
 object Server {
 
   /**  
-   * Action to start the server on a specified port, with an initial connection state. This action
-   * blocks forever when executed.
+   * Action to start the server on a specified port, with an initial state for new connections. 
+   * This action blocks forever when executed.
    */
   def run(port: Int, initialState: => ServerChannelState): IO[Unit] =
     for {

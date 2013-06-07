@@ -42,12 +42,6 @@ object ServerChannelWorld extends ChannelHandlerContextWorld.Lifted[IO] {
   def remoteAddress: Action[SocketAddress] =
     effect(_.channel.remoteAddress)
 
-  /** An `Action` can be run by supplying a `ChannelHandlerContext`. */
-  implicit class Ops[A](a: Action[A]) {
-    def run(chc: ChannelHandlerContext): IO[A] =
-      eval(a, chc).map(_._2)
-  }
-
   /** Private action to get a Netty channel attributes. */
   private def getAttr[A](a: AttributeKey[A]): Action[Option[A]] =
     effect(c => Option(c.channel().attr(a).get()))
@@ -57,7 +51,8 @@ object ServerChannelWorld extends ChannelHandlerContextWorld.Lifted[IO] {
     effect(c => c.channel().attr(k).set(a))
 
   /** Our state has a privileged (private) attribute key. */
-  private val StateKey = new AttributeKey[ServerChannelState](classOf[ServerChannelState].getName)
+  private val StateKey: AttributeKey[ServerChannelState] = 
+    new AttributeKey(classOf[ServerChannelState].getName)
 
   /** Get our channel state (package-private) */
   private[chan] def getState: Action[ServerChannelState] =
@@ -66,5 +61,11 @@ object ServerChannelWorld extends ChannelHandlerContextWorld.Lifted[IO] {
   /** Set our channel state (package-private) */
   private[chan] def putState(s: ServerChannelState): Action[ServerChannelState] =
     putAttr(StateKey, s).map(_ => s)
+
+  /** An `Action` can be run by supplying a `ChannelHandlerContext`. */
+  implicit class Ops[A](a: Action[A]) {
+    def run(chc: ChannelHandlerContext): IO[A] =
+      eval(a, chc).map(_._2)
+  }
 
 }
