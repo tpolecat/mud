@@ -1,4 +1,4 @@
-package data
+package mud.data
 
 import scala.util.parsing.combinator.RegexParsers
 

@@ -8,7 +8,7 @@ import scalaz.effect.IO
 import scalaz.effect.IO.ioMonadCatchIO
 import scalaz.effect.IO.ioUnit
 
-package object fut {
+package object mud {
 
   case class Portal(dest: Room)
 

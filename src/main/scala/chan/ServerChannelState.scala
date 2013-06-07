@@ -3,24 +3,24 @@ package chan
 import ServerChannelWorld._
 
 /** Trait for application-specific states. */
-trait SessionState {
+trait ServerChannelState {
   def prompt: Action[Unit]
-  def input(s: String): Action[SessionState]
+  def input(s: String): Action[ServerChannelState]
   def closed: Action[Unit]
 }
 
-object SessionState {
+object ServerChannelState {
 
-  object Closed extends SessionState {
+  object Closed extends ServerChannelState {
 
     def prompt: Action[Unit] =
       close
       
-    def input(s: String): Action[SessionState] =
-      close.map(_ => this) // we should never see input, but on the off chance we do, close.
+    override def input(s: String): Action[ServerChannelState] =
+      close.map(_ => this)
 
     def closed: Action[Unit] =
-      unit()
+      close
 
   }
 

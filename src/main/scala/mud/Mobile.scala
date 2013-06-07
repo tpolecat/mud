@@ -1,4 +1,4 @@
-package fut
+package mud
 
 import scalaz.effect.IO
 

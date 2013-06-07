@@ -1,27 +1,31 @@
-package session
+package mud.session
 
 import chan.ServerChannelWorld._
-import fut._
+import mud._
 import scalaz.syntax.std.boolean._
 import scalaz.effect.IO
 import scalaz.effect.IO._
-import chan.SessionState
+import chan.ServerChannelState
 
-case class Playing(d: Dungeon, m: Mobile) extends SessionState with Commands {
+case class Playing(d: Dungeon, m: Mobile) extends ServerChannelState with Commands {
 
   def prompt: Action[Unit] =
     write(s"<${m.name}> ")
 
-  def input(s: String): Action[SessionState] =
+  def input(s: String): Action[ServerChannelState] =
     for {
       _ <- cmd(s, d, m).liftIO[Action].map(_ => this)
       b <- d.playerExists(m.name).liftIO[Action] // TODO: this is a race
-    } yield if (b) this else SessionState.Closed
+    } yield if (b) this else ServerChannelState.Closed
 
   def closed: Action[Unit] =
     d.remove(m).liftIO[Action]
 
 }
+
+
+
+
 
 trait Commands {
 

@@ -1,3 +1,5 @@
+package mud
+
 import util.IOLog
 
 package object session {

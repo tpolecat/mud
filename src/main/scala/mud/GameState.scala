@@ -1,4 +1,4 @@
-package fut
+package mud
 
 import scala.concurrent.stm._
 import util.M2O
@@ -94,7 +94,7 @@ final class GameState(map: Map[Room, Map[Direction, Portal]]) extends World {
             _ <- move(m, p.dest)
             a <- roomInfo(r)
             b <- roomInfo(p.dest)
-          } yield Some(a, b)
+          } yield Some((a, b))
 
       }
     } yield i

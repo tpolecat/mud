@@ -4,8 +4,9 @@ import io.netty.channel.ChannelHandler.Sharable
 import io.netty.channel.ChannelHandlerContext
 import io.netty.channel.{ ChannelInboundMessageHandlerAdapter => Adapter }
 
+/** A Netty schannel handler that delegates its callbacks to `ServerChannelActions` */
 @Sharable // Annotation is important
-class ServerChannelHandler(initialState: => SessionState) extends Adapter[String] with ServerChannelActions {
+class ServerChannelHandler(initialState: => ServerChannelState) extends Adapter[String] with ServerChannelActions {
   import ServerChannelWorld._
   
   def messageReceived(ctx: ChannelHandlerContext, request: String): Unit =

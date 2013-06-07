@@ -70,28 +70,6 @@ trait World extends EffectWorld {
 
   }
   
-//  protected def runWorld[M[+_], A](a: ActionT[M, A], w: State): M[(State, A)] = a.run(w)
-
-
-
-  //  trait Transformed[F[+_]] {
-  //
-  //    type ActionT0[+A] = ActionT[F, A]
-  //
-  //    /** Construct an `Action` for a computation that transitions the `State` and produces a result of type `A`. */
-  //    protected def action[A](f: State => (State, A))(implicit M: Applicative[F]): ActionT0[A] = 
-  //      World.this.action(f).lift
-  //
-  //    /** Construct an `Action` for a computation consumes the `State` and produces a result of type `A`. */
-  //    protected final def effect[A](f: State => A)(implicit M: Applicative[F]): ActionT0[A] = 
-  //     action(s => (s, f(s)))
-  //
-  //    /** Construct an `Action` for a computation that simply returns a value of type `A`. */
-  //    protected final def unit[A](a: => A)(implicit M: Applicative[F]): ActionT0[A] = 
-  //      action(s => (s, a))
-  //
-  //  }
-
 }
 
 

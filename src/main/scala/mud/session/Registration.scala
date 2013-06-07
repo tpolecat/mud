@@ -1,27 +1,27 @@
-package session
+package mud.session
 
 import chan.ServerChannelWorld._
-import fut._
-import chan.SessionState
+import mud._
+import chan.ServerChannelState
 
-case class Registration(d: Dungeon) extends SessionState {
+case class Registration(d: Dungeon) extends ServerChannelState {
 
   def prompt: Action[Unit] =
     write(s"What is your name? ")
 
-  def input(s: String): Action[SessionState] =
+  def input(s: String): Action[ServerChannelState] =
     if (s.trim.isEmpty)
-      kick("Ok, nevermind.").map(_ => SessionState.Closed)
+      kick("Ok, nevermind.").map(_ => ServerChannelState.Closed)
     else
       for {
         b <- d.playerExists(s).liftIO[Action]
         s <- if (b) tryAgain(s) else create(s)
       } yield s
 
-  def tryAgain(s: String): Action[SessionState] =
+  def tryAgain(s: String): Action[ServerChannelState] =
     writeLn(s"Hmm, $s is already playing. Try again.").map(_ => this)
 
-  def create(s: String): Action[SessionState] =
+  def create(s: String): Action[ServerChannelState] =
     for {
       m <- unit(Mobile(s))
       w <- writer
@@ -32,7 +32,7 @@ case class Registration(d: Dungeon) extends SessionState {
     } yield Playing(d, m)
 
   def closed: Action[Unit] =
-    unit()
+    unit(())
 
 }
 

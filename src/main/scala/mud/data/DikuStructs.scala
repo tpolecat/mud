@@ -1,6 +1,6 @@
-package data
+package mud.data
 
-import fut.Direction
+import mud.Direction
 
 trait DikuStructs {
 

@@ -1,7 +1,7 @@
 
-package data
+package mud.data
 
-import fut._
+import mud._
 
 trait WorldParsers extends DikuParsers with DikuStructs {
 

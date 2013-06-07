@@ -12,25 +12,29 @@ import io.netty.handler.codec.Delimiters
 import io.netty.handler.codec.string.StringDecoder
 import io.netty.handler.codec.string.StringEncoder
 import io.netty.util.CharsetUtil.{ UTF_8 => Encoding }
-import util.TWorld
 import io.netty.channel.ChannelPipeline
 import io.netty.channel.ChannelHandler
+import util.TWorld
 
-class ServerChannelInitializer(initialState: => SessionState) extends ChannelInitializer[SocketChannel] {
+/** A Netty channel initializer that sets up each new channel as it's opened. */
+class ServerChannelInitializer(initialState: => ServerChannelState) extends ChannelInitializer[SocketChannel] {
 
-  import SocketChannelWorld.PipelineWorld._
+  import SocketChannelWorld.PipelineWorld._ // see below
 
+  // Our pipeline elements
   val Decoder = new StringDecoder(Encoding)
   val Encoder = new StringEncoder(Encoding)
   val Handler = new ServerChannelHandler(initialState)
 
+  /** Netty callback is delegated to our action (defined below) */
   def initChannel(ch: SocketChannel): Unit =
     initChannelAction.run(ch).unsafePerformIO
 
-  // Frame decoder is not a sharable RT value, so we need a new one each time.
+  /** An action to construct a frame decoder. This is a stateful object so construction is impure. */
   val frameDecoder: Action[ChannelHandler] =
     IO(new DelimiterBasedFrameDecoder(8192, Delimiters.lineDelimiter: _*)).liftIO[Action]
 
+  /** Our action that initializes each new channed. */
   val initChannelAction: Action[Unit] =
     for {
       d <- frameDecoder
@@ -42,13 +46,17 @@ class ServerChannelInitializer(initialState: => SessionState) extends ChannelIni
 
 }
 
-// A one-off effect world for socket channels
+/** 
+ * An effect world that knows how to configure a `SocketChannel`. This is a nice example of a very
+ * localized and very simple effect world.
+ */
 object SocketChannelWorld extends TWorld {
-
   protected type State = SocketChannel
 
+  // This world's actions are of type WorldT[IO, SocketChannel, A]
   object PipelineWorld extends Lifted[IO] {
 
+    /** Action to append a named `ChannelHandler`. */
     def addLast(s: String, cp: ChannelHandler): Action[Unit] =
       effect { ch => ch.pipeline.addLast(s, cp) }
 

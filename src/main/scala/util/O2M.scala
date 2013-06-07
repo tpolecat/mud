@@ -4,18 +4,23 @@ package util
 
 case class O2M[A, B] private (ab: Map[A, Set[B]], ba: Map[B, A]) {
 
-  def +(pair:(A,B)): O2M[A, B] = {
+  def +(pair: (A, B)): O2M[A, B] = {
     val (a, b) = pair
-    O2M(ba.get(b).fold(ab)(r => ab + (r -> (ab(r) - b))) + (a -> (ab(a) + b)), ba + (b -> a))
+    val sb = left(a) + b
+    O2M(ab + (a -> sb), ba + (b -> a))
   }
-  
-  def -(pair:(A,B)): O2M[A, B] = {
+    
+  def -(pair: (A, B)): O2M[A, B] = {
     val (a, b) = pair
-    O2M(ab + (a -> (ab(a) - b)), ba - b)
+    val sb = left(a) - b
+    sb.isEmpty match {
+      case false => O2M(ab + (a -> sb), ba - b)
+      case true  => O2M(ab - a,         ba - b)
+    }
   }
   
   def left(a: A): Set[B] =
-    ab(a)
+    ab.get(a).getOrElse(Set())
 
   def right(b: B): Option[A] =
     ba.get(b)
@@ -27,7 +32,7 @@ case class O2M[A, B] private (ab: Map[A, Set[B]], ba: Map[B, A]) {
 object O2M {
 
   private def emptySetMap[A, B]: Map[A, Set[B]] =
-    Map[A, Set[B]]() withDefaultValue Set()
+    Map[A, Set[B]]()
 
   def empty[A, B]: O2M[A, B] =
     O2M(emptySetMap[A, B], Map[B, A]())

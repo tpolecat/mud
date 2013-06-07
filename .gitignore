@@ -17,3 +17,6 @@ project/plugins/project/
 .worksheet/
 bin/
 .settings/
+
+# OS X
+.DS_Store

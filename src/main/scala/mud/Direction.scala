@@ -1,4 +1,4 @@
-package fut
+package mud
 
 sealed trait Direction
 
