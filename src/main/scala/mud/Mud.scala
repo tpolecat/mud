@@ -10,15 +10,15 @@ import util.IOLog
 
 object Mud extends SafeApp {
 
-  val Log = new IOLog("mud.main")
-  val port = 6011
+  val Log = new IOLog("mud", "main")
+  val Port = 6011
 
   override def runc: IO[Unit] =
     for {
       _ <- Log.info(s"Starting up...")
       d <- DikuData.load.map(new Dungeon(_))
       _ <- Log.info(s"Loaded dungeon with ${d.map.size} rooms.")
-      _ <- Server.run(port, Registration(d))
+      _ <- Server.run(Port, Registration(d))
       _ <- Log.info(s"Clean shutdown.")
     } yield ()
 

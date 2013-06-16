@@ -37,34 +37,36 @@ trait Commands {
 
   def handle(cmd: List[String], d: Dungeon, m: Mobile): IO[Unit] =
     cmd match {
-      case "go" :: "north" :: Nil => d.go(m, North)
-      case "go" :: "south" :: Nil => d.go(m, South)
-      case "go" :: "east" :: Nil  => d.go(m, East)
-      case "go" :: "west" :: Nil  => d.go(m, West)
-      case "go" :: "up" :: Nil    => d.go(m, Up)
-      case "go" :: "down" :: Nil  => d.go(m, Down)
-      case "look" :: Nil          => d.look(m)
-      case "quit" :: Nil          => d.remove(m)
-      case "" :: Nil              => ioUnit
-      case _                      => d.report(m)(Wat)
+      case "go"      :: "north" :: Nil => d.go(m, North)
+      case "go"      :: "south" :: Nil => d.go(m, South)
+      case "go"      :: "east"  :: Nil => d.go(m, East)
+      case "go"      :: "west"  :: Nil => d.go(m, West)
+      case "go"      :: "up"    :: Nil => d.go(m, Up)
+      case "go"      :: "down"  :: Nil => d.go(m, Down)
+      case "look"               :: Nil => d.look(m)
+      case "examine" :: s       :: Nil => d.examine(m, s)
+      case "quit"               :: Nil => d.remove(m)
+      case ""                   :: Nil => ioUnit
+      case _                           => d.report(m)(Wat)
     }
 
   def expandAlias(s: String): List[String] =
     Aliases.get(s).getOrElse(List(s))
 
   lazy val Aliases: Map[String, List[String]] = Map(
-    "l" -> List("look"),
-    "n" -> List("go", "north"),
-    "s" -> List("go", "south"),
-    "e" -> List("go", "east"),
-    "w" -> List("go", "west"),
-    "u" -> List("go", "up"),
-    "d" -> List("go", "down"),
+    "l"     -> List("look"),
+    "n"     -> List("go", "north"),
+    "s"     -> List("go", "south"),
+    "e"     -> List("go", "east"),
+    "w"     -> List("go", "west"),
+    "u"     -> List("go", "up"),
+    "d"     -> List("go", "down"),
+    "ex"    -> List("examine"),
     "north" -> List("go", "north"),
     "south" -> List("go", "south"),
-    "east" -> List("go", "east"),
-    "west" -> List("go", "west"),
-    "up" -> List("go", "up"),
-    "down" -> List("go", "down"))
+    "east"  -> List("go", "east"),
+    "west"  -> List("go", "west"),
+    "up"    -> List("go", "up"),
+    "down"  -> List("go", "down"))
 
 }

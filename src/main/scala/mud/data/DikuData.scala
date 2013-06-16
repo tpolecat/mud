@@ -15,13 +15,13 @@ object DikuData extends WorldParsers {
       parseAll(world, in) match {
         case Success(rooms, _) =>
           val idToRoom = rooms.map(r => (r.id, r)).toMap
-          val id2realRoom = idToRoom.map { case (k, r) => (k, mud.Room(r.name, r.desc)) } // strict
+          val id2realRoom = idToRoom.map { case (k, r) => (k, mud.Room(r)) }
           idToRoom.map {
             case (id, dr) =>
               val r = id2realRoom(id)
               val e = dr.exits.flatMap(_.left.toOption).filterNot(_.toRoom == -1).map { e =>              
                 e.dir -> Portal(id2realRoom(e.toRoom))
-              }.toMap
+              }.toMap                           
               (r -> e)
           }
         case x => sys.error(x.toString) // TODO: something sane

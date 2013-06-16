@@ -33,6 +33,9 @@ class Dungeon(val map: Map[Room, Map[Direction, Portal]]) {
   def look(m: Mobile): IO[Unit] =
     roomInfo(m).run.map(Look) >>= report(m)
 
+  def examine(m: Mobile, what: String): IO[Unit] =
+    findMobile(m).run.map(r => Examine(r.extras.get(what))) >>= report(m)
+
   def intro(m: Mobile): IO[Unit] =
     teleport(m, Start, EnterGame(m))
 

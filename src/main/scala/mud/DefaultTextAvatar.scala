@@ -19,10 +19,14 @@ class DefaultTextAvatar(self: Mobile, out: String => IO[Unit]) extends Avatar {
             |${info.room.desc.trim}
             |${info.mobiles.filterNot(_ == self).map(_.name).map(_ + " is standing here.").mkString("\n", "\n", "")}
             |${info.portals.map { case (d, p) => s"${d} : ${p.dest.name}" }.mkString("\n", "\n", "")}
+            |Extras: ${info.room.extras.keys.mkString(",")}
             |""".stripMargin
         .replaceAll("\n\n\n", "\n\n")
         .replaceAll("\n\n\n", "\n\n")
         .replaceAll("\n\n\n", "\n\n"))
+
+    case Examine(os) => 
+      os.orElse(Some("I don't see that here."))
 
     case EnterGame(m) =>
       Some((m == self) ? s"Welcome ${m.name}!" | s"${m.name} has entered the game.")

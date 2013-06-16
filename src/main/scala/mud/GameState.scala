@@ -10,7 +10,7 @@ import Scalaz._
 // Our mutable state is hidden in an effect world whose actions compose transactionally and can be run only in IO.
 final class GameState(map: Map[Room, Map[Direction, Portal]]) extends World {
 
-  // Find limbo; we need it
+  // Find limbo and our starting room; we need them. Diverge on failure.
   val Limbo = map.keys.find(_.name == "Limbo").getOrElse(sys.error("Fatal: can't find Limbo"))
   val Start = map.keys.find(_.name == "The Grunting Boar").getOrElse(sys.error("Fatal: can't find The Grunting Boar"))
 

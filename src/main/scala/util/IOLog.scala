@@ -5,7 +5,9 @@ import java.util.logging.Level
 import scalaz.effect.IO
 import scalaz.effect.IO._
 
-class IOLog(name: String) {
+class IOLog(path: String*) {
+
+  val name = path.mkString(".")
 
   def log(level: Level, msg: String, cause: Throwable): IO[Unit] =
     for {
@@ -14,7 +16,7 @@ class IOLog(name: String) {
     } yield ()
 
   def log(level: Level, msg: String): IO[Unit] =
-    putStrLn(f"$name%15s$level%8s $msg")
+    putStrLn(f"$name%-15s$level%8s $msg")
 
   def info(s: String): IO[Unit] =
     log(Level.INFO, s)
