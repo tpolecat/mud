@@ -16,9 +16,8 @@ object Mud extends SafeApp {
   override def runc: IO[Unit] =
     for {
       _ <- Log.info(s"Starting up...")
-      d <- DikuData.load.map(new Dungeon(_))
-      _ <- Log.info(s"Loaded dungeon with ${d.map.size} rooms.")
-      _ <- Server.run(Port, Registration(d))
+      s <- DikuData.load
+      _ <- Server.run(Port, Registration(new Dungeon(s)))
       _ <- Log.info(s"Clean shutdown.")
     } yield ()
 

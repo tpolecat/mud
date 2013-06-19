@@ -7,14 +7,14 @@ package mud
 // import scalaz._
 // import Scalaz._
 
-class WorldMap private (map: Map[Room, Map[Direction, Portal]], limbo: Room, start: Room) {
+class WorldMap private (map: Map[Room, Map[Direction, Door]], limbo: Room, start: Room) {
   // TODO: check consistency of map, limbo, and start
 }
 
 object WorldMap {
 
 
-  def apply(map: Map[Room, Map[Direction, Portal]], limbo: String, start: String) {
+  def apply(map: Map[Room, Map[Direction, Door]], limbo: String, start: String) {
     // Find limbo and our starting room; we need them. Diverge on failure.
     // TODO: return a validation
     val limboRoom = map.keys.find(_.name == limbo).getOrElse(sys.error(s"Fatal: can't find $limbo"))

@@ -10,8 +10,6 @@ import scalaz.effect.IO.ioUnit
 
 package object mud {
 
-  case class Portal(dest: Room)
-
   case class Item(name: String)
 
 }

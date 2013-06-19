@@ -8,7 +8,7 @@ import scalaz._
 import Scalaz._
 
 // Our mutable state is hidden in an effect world whose actions compose transactionally and can be run only in IO.
-final class GameState(map: Map[Room, Map[Direction, Portal]]) extends World {
+final class GameState(map: Map[Room, Map[Direction, Door]], ms: M2O[Mobile, Room]) extends World {
 
   // Find limbo and our starting room; we need them. Diverge on failure.
   val Limbo = map.keys.find(_.name == "Limbo").getOrElse(sys.error("Fatal: can't find Limbo"))
@@ -18,8 +18,8 @@ final class GameState(map: Map[Room, Map[Direction, Portal]]) extends World {
   protected type State = InTxn
 
   // But our world also encapsulates mutable state
-  private val portals: Ref[Map[Room, Map[Direction, Portal]]] = Ref(map)
-  private val mobiles: Ref[M2O[Mobile, Room]] = Ref(M2O.empty)
+  private val portals: Ref[Map[Room, Map[Direction, Door]]] = Ref(map)
+  private val mobiles: Ref[M2O[Mobile, Room]] = Ref(ms)
   private val items: Ref[M2O[Item, Room]] = Ref(M2O.empty)
   private val avatars: Ref[Map[Mobile,Avatar]] = Ref(Map())
   
@@ -63,7 +63,7 @@ final class GameState(map: Map[Room, Map[Direction, Portal]]) extends World {
       _ <- effect { implicit t => avatars() = avatars() - m }
     } yield ()    
   
-  def portals(r: Room): Action[Map[Direction, Portal]] =
+  def portals(r: Room): Action[Map[Direction, Door]] =
     effect { implicit t => portals().get(r).getOrElse(Map()) }
 
   def unit[A](a: A): Action[A] =
@@ -71,7 +71,7 @@ final class GameState(map: Map[Room, Map[Direction, Portal]]) extends World {
 
   // Derived actions
 
-  case class RoomInfo(room: Room, mobiles: Set[Mobile], portals: Map[Direction, Portal])
+  case class RoomInfo(room: Room, mobiles: Set[Mobile], portals: Map[Direction, Door])
 
   def roomInfo(room: Room): Action[RoomInfo] =
     (mobilesInRoom(room) |@| portals(room))(RoomInfo(room, _, _))

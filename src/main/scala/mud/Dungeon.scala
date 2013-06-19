@@ -1,5 +1,6 @@
 package mud
 
+import util._
 import scalaz.Scalaz._
 import scalaz.effect.IO
 import scalaz.effect.IO.ioMonadCatchIO
@@ -9,9 +10,7 @@ import scalaz.effect.IO.ioUnit
  * The dungeon, which encapsulates a `GameState` and provides actions for manipulating it. These
  * actions are all in IO and are atomic.
  */
-class Dungeon(val map: Map[Room, Map[Direction, Portal]]) {
-
-  val state = new GameState(map)
+class Dungeon(val state: GameState) {
   import state._
 
   /** Sets the `Avatar` for the given `Mobile`, removing ant existing `Avatar`. */
