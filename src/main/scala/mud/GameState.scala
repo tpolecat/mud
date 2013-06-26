@@ -29,8 +29,11 @@ final class GameState(map: Map[Room, Map[Direction, Door]], ms: M2O[Mobile, Room
   }
 
   // Primitive actions
+  def allAvatars: Action[Map[Mobile,Avatar]] =
+    effect { implicit tx => avatars() }
 
-  def attachAvatar(m:Mobile, a:Avatar): Action[Unit] =
+  // TODO: notify old avatar, if any
+  def attachAvatar(m:Mobile, a:Avatar): Action[Unit] = 
     effect { implicit tx => avatars() = avatars() + (m -> a)}
   
   def avatar(m:Mobile):Action[Option[Avatar]] =

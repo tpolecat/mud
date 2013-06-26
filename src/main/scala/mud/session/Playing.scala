@@ -9,6 +9,8 @@ import chan.ServerChannelState
 
 case class Playing(d: Dungeon, m: Mobile) extends ServerChannelState with Commands {
 
+  // Action[A] is WorldT[IO, A] { type State = ServerChannel }
+
   def prompt: Action[Unit] =
     write(s"<${m.name}> ")
 
@@ -26,8 +28,8 @@ case class Playing(d: Dungeon, m: Mobile) extends ServerChannelState with Comman
 
 
 
-
 trait Commands {
+  import Direction._
 
   def cmd(c: String, d: Dungeon, m: Mobile): IO[Unit] =
     c.trim.split("\\s+").toList.map(_.toLowerCase) match {
@@ -47,7 +49,7 @@ trait Commands {
       case "examine" :: s       :: Nil => d.examine(m, s)
       case "quit"               :: Nil => d.remove(m)
       case ""                   :: Nil => ioUnit
-      case _                           => d.report(m)(Wat)
+      case _                           => d.wat(m)
     }
 
   def expandAlias(s: String): List[String] =

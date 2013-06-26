@@ -2,7 +2,7 @@ package mud.data
 
 import mud.Direction
 
-trait DikuStructs {
+object DikuStructs {
 
   trait Described {
     def names: String
@@ -42,7 +42,7 @@ trait DikuStructs {
   case class Dice(num: Int, sides: Int, plus: Int)
 
   case class Mobile(
-    num: Int,
+    id: Int,
     names: String,
     shortDesc: String,
     longDesc: String,

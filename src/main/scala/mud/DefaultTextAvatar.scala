@@ -15,9 +15,11 @@ class DefaultTextAvatar(self: Mobile, out: String => IO[Unit]) extends Avatar {
     case Look(info) =>
       Some(s"""|
             |== ${info.room.name} ==
+            |${info.room.desc}
             |
-            |${info.room.desc.trim}
-            |${info.mobiles.filterNot(_ == self).map(_.name).map(_ + " is standing here.").mkString("\n", "\n", "")}
+            |${info.mobiles.filterNot(_ == self).map(_.intro).mkString("\n")}
+            |
+            |Debug info:
             |${info.portals.map { case (d, p) => s"${d} : ${p.dest.name}" }.mkString("\n", "\n", "")}
             |Extras: ${info.room.extras.keys.mkString(",")}
             |""".stripMargin
@@ -46,6 +48,10 @@ class DefaultTextAvatar(self: Mobile, out: String => IO[Unit]) extends Avatar {
     case Wat =>
       Some("wat?")
 
+    case Idle =>
+      None
+
   }
 
 }
+

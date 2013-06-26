@@ -26,3 +26,5 @@ case class NoExit(d: Direction) extends Stimulus
 /** I don't understand. */
 case object Wat extends Stimulus
 
+/** Periodic idle message. */
+case object Idle extends Stimulus

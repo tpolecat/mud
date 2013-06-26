@@ -8,26 +8,31 @@ import scalaz.effect.IO.ioUnit
 
 /** 
  * The dungeon, which encapsulates a `GameState` and provides actions for manipulating it. These
- * actions are all in IO and are atomic.
+ * actions are all in IO and are atomic where needed.
  */
-class Dungeon(val state: GameState) {
+case class Dungeon(state: GameState) {
   import state._
 
-  /** Sets the `Avatar` for the given `Mobile`, removing ant existing `Avatar`. */
-  def setAvatar(m: Mobile, a: Avatar): IO[Unit] =
-    attachAvatar(m, a).run
+  // Private reporting helpers
 
-  def report(m: Mobile)(s: Stimulus): IO[Unit] =
+  private def report(m: Mobile)(s: Stimulus): IO[Unit] =
     for {
       a <- avatar(m).run
       _ <- a.fold(ioUnit)(_.report(s))
     } yield ()
 
-  def reportAll(ms: Set[Mobile])(s: => Stimulus): IO[Unit] =
+  private def reportAll(ms: Set[Mobile])(s: => Stimulus): IO[Unit] =
     ms.toList.traverse(report(_)(s)) >> ioUnit
 
-  def reportMany(ms: Set[Mobile], except: Mobile)(s: => Stimulus): IO[Unit] =
+  private def reportMany(ms: Set[Mobile], except: Mobile)(s: => Stimulus): IO[Unit] =
     reportAll(ms.filterNot(_ == except))(s)
+
+
+
+
+  /** Sets the `Avatar` for the given `Mobile`, removing any existing `Avatar`. */
+  def setAvatar(m: Mobile, a: Avatar): IO[Unit] =
+    attachAvatar(m, a).run
 
   def look(m: Mobile): IO[Unit] =
     roomInfo(m).run.map(Look) >>= report(m)
@@ -74,6 +79,10 @@ class Dungeon(val state: GameState) {
 
   def playerExists(s: String): IO[Boolean] =
     lookupMobile(s.trim).map(_.isDefined).run
+
+  def wat(m:Mobile): IO[Unit] =
+    report(m)(Wat)
+
 
 }
 

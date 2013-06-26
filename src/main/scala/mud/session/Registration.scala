@@ -14,7 +14,8 @@ case class Registration(d: Dungeon) extends ServerChannelState {
       kick("Ok, nevermind.").map(_ => ServerChannelState.Closed)
     else
       for {
-        b <- d.playerExists(s).liftIO[Action]
+        // TODO: there is a race here; player introduction needs to be atomic on `d`
+        b <- d.playerExists(s).liftIO[Action]  
         s <- if (b) tryAgain(s) else create(s)
       } yield s
 
@@ -23,7 +24,7 @@ case class Registration(d: Dungeon) extends ServerChannelState {
 
   def create(s: String): Action[ServerChannelState] =
     for {
-      m <- unit(Mobile(s))
+      m <- unit(Player(s))
       w <- writer
       _ <- d.setAvatar(m, new DefaultTextAvatar(m, w)).liftIO[Action]
       _ <- d.intro(m).liftIO[Action]

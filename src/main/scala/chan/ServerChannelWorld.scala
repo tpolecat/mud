@@ -38,7 +38,7 @@ object ServerChannelWorld extends ChannelHandlerContextWorld.Lifted[IO] {
   def writer: Action[String => IO[Unit]] =
     effect(c => s => writeLn(s).run(c))
 
-  /** Return the address associated wit hthe channel. */
+  /** Return the address associated with the channel. */
   def remoteAddress: Action[SocketAddress] =
     effect(_.channel.remoteAddress)
 
