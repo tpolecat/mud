@@ -6,10 +6,10 @@ import DikuStructs._
 
 object MobParsers extends DikuParsers[List[Mobile]] {
 
-  val top: Parser[List[Mobile]] =
+  lazy val top: PackratParser[List[Mobile]] =
     rep(mob)
 
-  val mob: Parser[Mobile] =
+  lazy val mob: PackratParser[Mobile] =
     "#" ~>      // initial
     num ~       // vnum
     str ~       // names

@@ -9,15 +9,15 @@ object ZoneParsers extends DikuParsers[List[Zone]]  {
 
   override protected val whiteSpace = """[ \t]+""".r
 
-  override val str: Parser[String] =
+  override lazy val str: PackratParser[String] =
     "[^~]*".r ~ "~" <~ nl ^^ (_._1) // strings are terminated with ~
 
-  val nl = "\n"
+  lazy val nl = "\n"
 
-  val top: Parser[List[Zone]] =
+  lazy val top: PackratParser[List[Zone]] =
     rep(zone)
 
-  val zone: Parser[Zone] =
+  lazy val zone: PackratParser[Zone] =
     "#" ~> // initial
     num ~> // ignored
     nl  ~>
@@ -32,41 +32,41 @@ object ZoneParsers extends DikuParsers[List[Zone]]  {
         Zone(name, top, lifespan, resetMode, cmds)
     }
 
-  val cmd3: Parser[(Boolean, Int, Int)] =
+  lazy val cmd3: PackratParser[(Boolean, Int, Int)] =
     ifFlag ~ num ~ num ^^ {
       case ifFlag ~ a ~ b => (ifFlag, a, b)        
     }
 
-  val cmd4: Parser[(Boolean, Int, Int, Int)] =
+  lazy val cmd4: PackratParser[(Boolean, Int, Int, Int)] =
     ifFlag ~ num ~ num ~ num ^^ {
       case ifFlag ~ a ~ b ~ c => (ifFlag, a, b, c)        
     }
 
-  val loadMobile: Parser[LoadMobile] = 
+  lazy val loadMobile: PackratParser[LoadMobile] = 
     "M" ~> cmd4 ^^ (LoadMobile.apply _).tupled
 
-  val loadObject: Parser[LoadObject] = 
+  lazy val loadObject: PackratParser[LoadObject] = 
     "O" ~> cmd4 ^^ (LoadObject.apply _).tupled
 
-  val giveObject: Parser[GiveObject] = 
+  lazy val giveObject: PackratParser[GiveObject] = 
     "G" ~> cmd3 ^^ (GiveObject.apply _).tupled
 
-  val equipObject: Parser[EquipObject] = 
+  lazy val equipObject: PackratParser[EquipObject] = 
     "E" ~> cmd4 ^^ (EquipObject.apply _).tupled
 
-  val putObject: Parser[PutObject] = 
+  lazy val putObject: PackratParser[PutObject] = 
     "P" ~> cmd4 ^^ (PutObject.apply _).tupled
 
-  val setDoorState: Parser[SetDoorState] = 
+  lazy val setDoorState: PackratParser[SetDoorState] = 
     "D" ~> cmd4 ^^ (SetDoorState.apply _).tupled
 
-  val removeObject: Parser[RemoveObject] = 
+  lazy val removeObject: PackratParser[RemoveObject] = 
     "R" ~> cmd3 ^^ (RemoveObject.apply _).tupled
 
-  val nop: Parser[Nop.type] =
+  lazy val nop: PackratParser[Nop.type] =
     "*" ^^^ Nop
 
-  val zoneCommand: Parser[ZoneCommand] =
+  lazy val zoneCommand: PackratParser[ZoneCommand] =
     (loadMobile   | 
      loadObject   | 
      giveObject   | 

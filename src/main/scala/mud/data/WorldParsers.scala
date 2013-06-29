@@ -8,7 +8,7 @@ import Direction._
 
 object WorldParsers extends DikuParsers[List[Room]] {
 
-  val room: Parser[Room] =
+  lazy val room: PackratParser[Room] =
     "#" ~>       // initial
     num ~        // id
     str ~        // names
@@ -23,7 +23,7 @@ object WorldParsers extends DikuParsers[List[Room]] {
           Room(id, name, desc, zone, flags, sector, exits)
       }
 
-  val dir: Parser[Direction] =
+  lazy val dir: PackratParser[Direction] =
       "D0" ^^^ North |
       "D1" ^^^ East  |
       "D2" ^^^ South |
@@ -31,7 +31,7 @@ object WorldParsers extends DikuParsers[List[Room]] {
       "D4" ^^^ Up    |
       "D5" ^^^ Down
 
-  val exit: Parser[Exit] =
+  lazy val exit: PackratParser[Exit] =
     dir ~  // direction 
     str ~  // desc (when you look)
     str ~  // names (when you look)
@@ -43,7 +43,7 @@ object WorldParsers extends DikuParsers[List[Room]] {
           Exit(d, s, s2, a, b, c) 
       }
 
-  val extra: Parser[Extra] =
+  lazy val extra: PackratParser[Extra] =
     "E" ~> // initial
     str ~  // name
     str ^^ // desc
@@ -52,12 +52,12 @@ object WorldParsers extends DikuParsers[List[Room]] {
         Extra(name, desc)
     }
 
-  val exitOrExtra: Parser[Either[Exit, Extra]] =
+  lazy val exitOrExtra: PackratParser[Either[Exit, Extra]] =
     exit  ^^ (Left(_)) |
     extra ^^ (Right(_))
     
 
-  val top: Parser[List[Room]] = 
+  lazy val top: PackratParser[List[Room]] = 
     rep(room)
 
 }

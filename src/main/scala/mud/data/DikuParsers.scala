@@ -1,26 +1,26 @@
 package mud.data
 
-import scala.util.parsing.combinator.RegexParsers
+import scala.util.parsing.combinator._
 import scalaz.effect.IO
 import java.io.File
 import scala.io.Source
 import scalaz._
 
-trait DikuParsers[A] extends RegexParsers {
+trait DikuParsers[A] extends RegexParsers with PackratParsers {
   import DikuStructs._
 
-  def top: Parser[A]
+  def top: PackratParser[A]
 
-  val num: Parser[Int] =
+  lazy val num: PackratParser[Int] =
     "[+-]?\\d+".r ^^ (_.toInt)
 
-  val str: Parser[String] =
+  lazy val str: PackratParser[String] =
     "[^~]*".r ~ "~" ^^ (_._1) // strings are terminated with ~
 
-  val dice: Parser[Dice] =
+  lazy val dice: PackratParser[Dice] =
     num ~ "d" ~ num ~ "+" ~ num ^^ { case n ~ _ ~ s ~ _ ~ p => Dice(n, s, p) }
 
-  val ifFlag: Parser[Boolean] =
+  lazy val ifFlag: PackratParser[Boolean] =
     num ^^ (_ != 0)
 
   def load(f: File): IO[NoSuccess \/ A] = IO {
