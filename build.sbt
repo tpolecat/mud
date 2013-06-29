@@ -2,7 +2,7 @@ name := "mud"
 
 version := "0.1"
 
-scalaVersion := "2.10.1"
+scalaVersion := "2.10.2"
 
 // Set things up so we can run async
 fork := true
