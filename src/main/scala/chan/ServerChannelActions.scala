@@ -29,7 +29,7 @@ trait ServerChannelActions {
       _ <- b.prompt
     } yield ()
 
-  /** Route a closing event to the surrent state's handler. */
+  /** Route a closing event to the current state's handler. */
   def channelInactiveAction: Action[Unit] =
     for {
       r <- remoteAddress

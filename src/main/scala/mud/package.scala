@@ -10,6 +10,5 @@ import scalaz.effect.IO.ioUnit
 
 package object mud {
 
-  case class Item(name: String)
 
 }

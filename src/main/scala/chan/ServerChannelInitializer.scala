@@ -58,7 +58,7 @@ object SocketChannelWorld extends TWorld {
 
     /** Action to append a named `ChannelHandler`. */
     def addLast(s: String, cp: ChannelHandler): Action[Unit] =
-      effect { ch => ch.pipeline.addLast(s, cp) }
+      effect { ch => ch.pipeline.addLast(s, cp); () }
 
     implicit class Ops[A](a: Action[A]) {
       def run(chc: SocketChannel): IO[A] =

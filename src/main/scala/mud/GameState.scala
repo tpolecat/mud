@@ -20,7 +20,7 @@ final class GameState(map: Map[Room, Map[Direction, Door]], ms: M2O[Mobile, Room
   // But our world also encapsulates mutable state
   private val portals: Ref[Map[Room, Map[Direction, Door]]] = Ref(map)
   private val mobiles: Ref[M2O[Mobile, Room]] = Ref(ms)
-  private val items: Ref[M2O[Item, Room]] = Ref(M2O.empty)
+  private val items:   Ref[M2O[Item, Room]] = Ref(M2O.empty)
   private val avatars: Ref[Map[Mobile,Avatar]] = Ref(Map())
   
   // And because our actions can modify mutable state, they can only be run in IO
@@ -49,10 +49,17 @@ final class GameState(map: Map[Room, Map[Direction, Door]], ms: M2O[Mobile, Room
     effect { implicit t => mobiles().o2m.ba.keySet.find(_.name equalsIgnoreCase s) }
 
   def mobilesInRoom(r: Room): Action[Set[Mobile]] =
-    effect { implicit t => mobiles().right(r) }
+    effect { implicit t => 
+      val ms = mobiles().right(r) 
+      println("mobiles in " + r.name + " => " + ms.map(_.name))
+      ms
+    }
 
   def move(m: Mobile, dest: Room): Action[Unit] =
-    effect { implicit t => mobiles() = mobiles() + (m -> dest) }
+    effect { implicit t => 
+      println("moving " + m.name + " to " + dest.name)
+      mobiles() = mobiles() + (m -> dest) 
+    }
   
   // What about this?
   val tryAgain: Action[Nothing] =

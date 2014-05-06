@@ -9,9 +9,9 @@ import mud._
 import scalaz.effect.IO
 import scalaz.effect.IO._
 import util.M2O
-import shapeless._
-import shapeless.contrib.scalaz._
-import Tuples._
+// import shapeless._
+// import shapeless.contrib.scalaz._
+// import Tuples._
 import language.existentials
 import scala.util.parsing.combinator.Parsers
 
@@ -24,17 +24,15 @@ object DikuData {
     def load[A](p: DikuParsers[A], suffix: String): IO[Parsers#NoSuccess \/ A] =
       p.load(new File(dir, prefix + suffix))
 
-    val t = (load(WorldParsers, ".wld"),
-             load(MobParsers,   ".mob"),
-             load(ZoneParsers,  ".zon"))
-
-    // sequence(t).map(sequence(_).map(initialDungeon))
-    sequence(t.hlisted).map(sequence(_).map(_.tupled)
-                                       .map(initialDungeon))
+    for {
+      a <- load(WorldParsers, ".wld")
+      b <- load(MobParsers,   ".mob")
+      c <- load(ZoneParsers,  ".zon")
+    } yield (a |@| b |@| c)(initialDungeon)
 
   }
 
-  def initialDungeon: Tuple3[List[Room], List[Mobile], List[Zone]] => Dungeon = { case (rs, ms, zs) =>
+  def initialDungeon(rs: List[Room], ms: List[Mobile], zs: List[Zone]): Dungeon = { 
 
     // Map from id to diku room
     val idToRoom = rs.map(r => (r.id, r)).toMap

@@ -14,7 +14,7 @@ object Mud extends SafeApp {
   val Log = new IOLog("mud", "main")
   val Port = 6011
 
-  override def runc: IO[Unit] =
+  override val runc: IO[Unit] =
     for {
       _ <- Log.info(s"Starting up...")
       e <- DikuData.load(new File("data"), "tinyworld")

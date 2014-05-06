@@ -21,13 +21,13 @@ object ServerChannelState {
   /** A general-purpose closed state. */
   object Closed extends ServerChannelState {
 
-    def prompt: Action[Unit] = 
+    val prompt: Action[Unit] = 
       close
 
     override def input(s: String): Action[ServerChannelState] = 
       close.map(_ => this)
     
-    def closed: Action[Unit] = 
+    val closed: Action[Unit] = 
       close
 
   }

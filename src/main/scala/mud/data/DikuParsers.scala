@@ -12,7 +12,7 @@ trait DikuParsers[A] extends RegexParsers with PackratParsers {
   def top: PackratParser[A]
 
   lazy val num: PackratParser[Int] =
-    "[+-]?\\d+".r ^^ (_.toInt)
+    "[+-]?\\d+".r ^^ (_.replace("+","").toInt)
 
   lazy val str: PackratParser[String] =
     "[^~]*".r ~ "~" ^^ (_._1) // strings are terminated with ~
